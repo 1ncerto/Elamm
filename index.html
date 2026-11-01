@@ -15,7 +15,6 @@
     }
 
     * { box-sizing: border-box; }
-
     html, body { min-height: 100%; }
 
     body {
@@ -27,7 +26,7 @@
       font-family: "Segoe UI", Arial, sans-serif;
     }
 
-    /* Aynı fotoğraf hem girişte hem ana ekranda arka plan olarak kullanılır. */
+    /* Aynı çocukluk fotoğrafı girişte ve ana ekranda arka planda kalır. */
     body::before {
       content: "";
       position: fixed;
@@ -194,6 +193,11 @@
   </style>
 </head>
 <body>
+  <!-- Sesli otomatik oynatma tarayıcı tarafından engellenebilir; ilk tıklamada tekrar başlatılır. -->
+  <audio id="backgroundMusic" preload="auto" loop playsinline>
+    <source src="Manu%C5%9F%20Baba%20-%20Ete%C4%9Fi%20Belinde.mp3" type="audio/mpeg">
+  </audio>
+
   <section class="screen intro" aria-label="Giriş">
     <div>
       <p class="intro-label">Sana küçük bir sürprizim var</p>
@@ -215,9 +219,31 @@
 
   <script>
     const enterButton = document.getElementById("enterButton");
+    const backgroundMusic = document.getElementById("backgroundMusic");
+    const mainContent = document.getElementById("mainContent");
+
+    backgroundMusic.volume = 0.65;
+
+    function startMusic() {
+      if (backgroundMusic.paused) {
+        const playRequest = backgroundMusic.play();
+        if (playRequest && typeof playRequest.catch === "function") {
+          playRequest.catch(() => {
+            // Tarayıcı otomatik oynatmayı engellerse ilk kullanıcı tıklaması tekrar dener.
+          });
+        }
+      }
+    }
+
+    // Destekleyen tarayıcılarda müzik sayfa açılır açılmaz başlar.
+    window.addEventListener("load", startMusic);
+
+    // Otomatik oynatma engellendiyse bu tıklama müziği başlatır.
+    // Ekran değişirken ses durmaz ve şarkı bittiğinde başa sarar.
     enterButton.addEventListener("click", () => {
+      startMusic();
       document.body.classList.add("show-main");
-      document.getElementById("mainContent").setAttribute("aria-live", "polite");
+      mainContent.setAttribute("aria-live", "polite");
     });
   </script>
 </body>
